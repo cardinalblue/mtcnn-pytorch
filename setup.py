@@ -10,9 +10,9 @@ setuptools.setup(
     description='MTCNN using Pytorch.',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/khrlimam/mtcnn-pytorch",
+    url="https://github.com/Davood-M/mtcnn-pytorch",
     packages=setuptools.find_packages(),
-    install_requires=['numpy', 'torch', 'torchvision'],
+    install_requires=['numpy', 'torch', 'Pillow', 'opencv_python'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
