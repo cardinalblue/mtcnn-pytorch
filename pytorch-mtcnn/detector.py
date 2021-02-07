@@ -3,6 +3,9 @@ import torch
 from .get_nets import PNet, RNet, ONet
 from .box_utils import nms, calibrate_box, get_image_boxes, convert_to_square
 from .first_stage import run_first_stage
+from PIL import Image
+import cv2
+
 
 
 def detect_faces(image, min_face_size=20.0,
@@ -79,8 +82,8 @@ def detect_faces(image, min_face_size=20.0,
         img_boxes = get_image_boxes(bounding_boxes, image, size=24)
         img_boxes = torch.FloatTensor(img_boxes)
         output = rnet(img_boxes)
-        offsets = output[0].data.numpy()  # shape [n_boxes, 4]
-        probs = output[1].data.numpy()  # shape [n_boxes, 2]
+        offsets = output[0].data.cpu().numpy()  # shape [n_boxes, 4]
+        probs = output[1].data.cpu().numpy()  # shape [n_boxes, 2]
 
         keep = np.where(probs[:, 1] > thresholds[1])[0]
         bounding_boxes = bounding_boxes[keep]
@@ -100,9 +103,9 @@ def detect_faces(image, min_face_size=20.0,
             return [], []
         img_boxes = torch.FloatTensor(img_boxes)
         output = onet(img_boxes)
-        landmarks = output[0].data.numpy()  # shape [n_boxes, 10]
-        offsets = output[1].data.numpy()  # shape [n_boxes, 4]
-        probs = output[2].data.numpy()  # shape [n_boxes, 2]
+        landmarks = output[0].data.cpu().numpy()  # shape [n_boxes, 10]
+        offsets = output[1].data.cpu().numpy()  # shape [n_boxes, 4]
+        probs = output[2].data.cpu().numpy()  # shape [n_boxes, 2]
 
         keep = np.where(probs[:, 1] > thresholds[2])[0]
         bounding_boxes = bounding_boxes[keep]
@@ -123,3 +126,19 @@ def detect_faces(image, min_face_size=20.0,
     landmarks = landmarks[keep]
 
     return bounding_boxes, landmarks
+
+
+def get_faces(path):
+    image = Image.open(path)
+    bounding_boxes, _ = detect_faces(image)
+
+    if len(bounding_boxes) == 0:
+        return []
+    images = []
+
+    # else, crop the image
+    img_1 = cv2.imread(path)
+    for image_no in range(len(bounding_boxes)):
+        det = list(map(int, bounding_boxes[image_no]))
+        images.append(img_1[ det[1]:det[3], det[0]:det[2]])
+    return images

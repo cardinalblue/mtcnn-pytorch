@@ -4,10 +4,10 @@ with open('README.md', 'r') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name='torch-mtcnn',
-    version='0.0.7',
-    author='Dan Antoshchenko',
-    description='Implementation of MTCNN using Pytorch.',
+    name='pytorch-mtcnn',
+    version='0.0.1',
+    author='David Mosallanezhad',
+    description='MTCNN using Pytorch.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/khrlimam/mtcnn-pytorch",
