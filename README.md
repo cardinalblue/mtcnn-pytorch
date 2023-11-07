@@ -2,7 +2,7 @@ This project is belongs to the original creator (https://github.com/khrlimam/mtc
 
 
 ## How to install
-Install the package with pip: `pip install torch-mtcnn`
+Install the package with pip: `pip install git+https://github.com/cardinalblue/mtcnn-pytorch.git`
 
 
 ## How to use
