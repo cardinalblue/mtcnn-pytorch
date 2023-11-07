@@ -4,23 +4,22 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-try:
-    from torch.hub import load_state_dict_from_url
-except ImportError:
-    from torch.utils.model_zoo import load_url as load_state_dict_from_url
+import os
 
-model_urls = dict(
-    onet='https://github.com/khrlimam/mtcnn-pytorch/releases/download/0.0.1/onet-60cc8dd5.pth',
-    pnet='https://github.com/khrlimam/mtcnn-pytorch/releases/download/0.0.1/pnet-6b6ef92b.pth',
-    rnet='https://github.com/khrlimam/mtcnn-pytorch/releases/download/0.0.1/rnet-b13c48bc.pth'
+PWD = os.path.dirname(os.path.realpath(__file__))
+CHECKPOINT_DIR = os.path.join(PWD, 'checkpoints')
+
+model_name_to_checkpoint_dict = dict(
+    onet = os.path.join(CHECKPOINT_DIR, 'onet-60cc8dd5.pth'),
+    pnet = os.path.join(CHECKPOINT_DIR, 'pnet-6b6ef92b.pth'),
+    rnet = os.path.join(CHECKPOINT_DIR, 'rnet-b13c48bc.pth')
 )
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-
-def load_state(arch, progress=True):
-    state = load_state_dict_from_url(model_urls.get(arch), progress=progress)
-    return state
+def load_state(model_name):
+    state_dict = torch.load(model_name_to_checkpoint_dict[model_name], map_location='cpu')
+    return state_dict
 
 
 class Flatten(nn.Module):
@@ -182,3 +181,8 @@ class ONet(nn.Module):
         c = self.conv6_3(x)
         a = F.softmax(a, dim=1)
         return c, b, a
+
+
+pnet_model = PNet().eval()
+rnet_model = RNet().eval()
+onet_model = ONet().eval()
