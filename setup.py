@@ -12,6 +12,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Davood-M/mtcnn-pytorch",
     packages=setuptools.find_packages(),
+    package_data={"checkpoints": ["*.pth"]},
     install_requires=['numpy', 'torch', 'Pillow', 'opencv_python'],
     classifiers=[
         "Programming Language :: Python :: 3",
