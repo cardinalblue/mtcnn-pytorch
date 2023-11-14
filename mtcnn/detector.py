@@ -1,10 +1,11 @@
 import numpy as np
 import torch
 from .get_nets import pnet_model, rnet_model, onet_model
-from .box_utils import nms, calibrate_box, get_image_boxes, convert_to_square
+from .box_utils import nms, calibrate_box, get_image_boxes, convert_to_square, re_orient_bboxes
 from .first_stage import run_first_stage
 from PIL import Image
 import cv2
+from typing import Union
 
 def detect_faces(
     image, 
@@ -13,8 +14,7 @@ def detect_faces(
     nms_thresholds = [0.7, 0.7, 0.7],
     pnet = pnet_model,
     rnet = rnet_model,
-    onet = onet_model
-):
+    onet = onet_model):
     """
     Arguments:
         image: an instance of PIL.Image.
@@ -140,3 +140,24 @@ def get_faces(path):
         det = list(map(int, bounding_boxes[image_no]))
         images.append(img_1[ det[1]:det[3], det[0]:det[2]])
     return images
+
+def detect_faces_in_all_orientations(image: Image.Image) -> Union[np.ndarray, list]:
+    """
+    Detects faces in all orientations [0, 90, 180, 270] in the given image.
+    """
+    bboxes = []
+    for orientation in [0, 90, 180, 270]:
+        rotated_image = image.rotate(orientation, expand=True)
+        bboxes_orientation, _ = detect_faces(rotated_image)
+        if len(bboxes_orientation) == 0:
+            continue
+        probability = bboxes_orientation[:, 4]
+        bboxes_orientation = re_orient_bboxes(bboxes_orientation[:, :4], 360 - orientation, rotated_image.size, image.size)
+        bboxes_orientation = np.concatenate((bboxes_orientation, probability.reshape(-1, 1)), axis=1)
+        bboxes.append(bboxes_orientation)
+    
+    if len(bboxes) == 0:
+        return []
+    bboxes = np.vstack(bboxes)
+    return bboxes
+    

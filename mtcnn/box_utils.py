@@ -1,6 +1,45 @@
 import numpy as np
 from PIL import Image
+from typing import Tuple
 
+def transform_pixel_coordinates(pixel_coordinates:np.array, \
+                                angle: int, \
+                                original_img_size:Tuple[int, int], \
+                                transformed_img_size:Tuple[int, int])->np.array:
+    # Transform pixel coordinates from original image to transformed image.
+    # Input: pixel_coordinates : [n, 2] (x, y)
+    # Output: pixel_coordinates : [n, 2] (x, y)
+    center = np.array([original_img_size[0]//2, original_img_size[1]//2])
+    transformed_center = np.array([transformed_img_size[0]//2, transformed_img_size[1]//2])
+    angle_radians = -np.deg2rad(angle)
+
+    pixel_coordinates = pixel_coordinates - center
+
+    rotation_matrix = np.array([[np.cos(angle_radians), -np.sin(angle_radians)], \
+                                [np.sin(angle_radians), np.cos(angle_radians)]])
+
+    pixel_transformed = np.matmul(rotation_matrix, pixel_coordinates.T).T 
+    pixel_transformed = pixel_transformed + transformed_center
+
+    return pixel_transformed
+    
+
+def re_orient_bboxes(bboxes:np.array, orientation:int, \
+                    original_img_size:Tuple[int, int], \
+                    transformed_img_size:Tuple[int, int]) -> np.array:
+    #bboxes : [n, 4] (left, top, right, bottom)
+    #orientation : 0, 90, 180, 270
+    if orientation == 0:
+        return bboxes
+    oriented_bboxes = []
+    for left, top, right, bottom in bboxes:
+        bbox = np.array([[left, top], [right, bottom]])
+        bbox = transform_pixel_coordinates(bbox, orientation, original_img_size, transformed_img_size)
+        left, top = np.min(bbox, axis=0)
+        right, bottom = np.max(bbox, axis=0)
+        oriented_bboxes.append([left, top, right, bottom])
+    return np.array(oriented_bboxes)
+    
 
 def nms(boxes, overlap_threshold=0.5, mode='union'):
     """Non-maximum suppression.
