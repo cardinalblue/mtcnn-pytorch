@@ -24,17 +24,18 @@ def transform_pixel_coordinates(pixel_coordinates:np.array, \
     return pixel_transformed
     
 
-def re_orient_bboxes(bboxes:np.array, orientation:int, \
+def re_orient_bboxes(bboxes:np.array, original_orientation:int, \
                     original_img_size:Tuple[int, int], \
-                    transformed_img_size:Tuple[int, int]) -> np.array:
+                    rotated_img_size:Tuple[int, int]) -> np.array:
     #bboxes : [n, 4] (left, top, right, bottom)
-    #orientation : 0, 90, 180, 270
-    if orientation == 0:
+    #original_orientation : 0, 90, 180, 270
+    if original_orientation == 0:
         return bboxes
+    orientation = 360 - original_orientation
     oriented_bboxes = []
     for left, top, right, bottom in bboxes:
         bbox = np.array([[left, top], [right, bottom]])
-        bbox = transform_pixel_coordinates(bbox, orientation, original_img_size, transformed_img_size)
+        bbox = transform_pixel_coordinates(bbox, orientation, original_img_size, rotated_img_size)
         left, top = np.min(bbox, axis=0)
         right, bottom = np.max(bbox, axis=0)
         oriented_bboxes.append([left, top, right, bottom])

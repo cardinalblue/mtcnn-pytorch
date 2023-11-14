@@ -152,7 +152,7 @@ def detect_faces_in_all_orientations(image: Image.Image) -> Union[np.ndarray, li
         if len(bboxes_orientation) == 0:
             continue
         probability = bboxes_orientation[:, 4]
-        bboxes_orientation = re_orient_bboxes(bboxes_orientation[:, :4], 360 - orientation, rotated_image.size, image.size)
+        bboxes_orientation = re_orient_bboxes(bboxes_orientation[:, :4], orientation, rotated_image.size, image.size)
         bboxes_orientation = np.concatenate((bboxes_orientation, probability.reshape(-1, 1)), axis=1)
         bboxes.append(bboxes_orientation)
     
