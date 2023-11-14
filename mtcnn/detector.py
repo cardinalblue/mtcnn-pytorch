@@ -61,6 +61,9 @@ def detect_faces(
 
     # collect boxes (and offsets, and scores) from different scales
     bounding_boxes = [i for i in bounding_boxes if i is not None]
+    # The below line is to fix the bug of no bounding boxes giving an error in the next line (np.vstack)
+    if len(bounding_boxes) == 0: 
+        return [], []
     bounding_boxes = np.vstack(bounding_boxes)
 
     keep = nms(bounding_boxes[:, 0:5], nms_thresholds[0])
