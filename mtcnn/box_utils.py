@@ -1,43 +1,27 @@
 import numpy as np
 from PIL import Image
-from typing import Tuple
-
-def transform_pixel_coordinates(pixel_coordinates:np.array, \
-                                angle: int, \
-                                original_img_size:Tuple[int, int], \
-                                transformed_img_size:Tuple[int, int])->np.array:
-    # Transform pixel coordinates from original image to transformed image.
-    # Input: pixel_coordinates : [n, 2] (x, y)
-    # Output: pixel_coordinates : [n, 2] (x, y)
-    center = np.array([original_img_size[0]//2, original_img_size[1]//2])
-    transformed_center = np.array([transformed_img_size[0]//2, transformed_img_size[1]//2])
-    angle_radians = -np.deg2rad(angle)
-
-    pixel_coordinates = pixel_coordinates - center
-
-    rotation_matrix = np.array([[np.cos(angle_radians), -np.sin(angle_radians)], \
-                                [np.sin(angle_radians), np.cos(angle_radians)]])
-
-    pixel_transformed = np.matmul(rotation_matrix, pixel_coordinates.T).T 
-    pixel_transformed = pixel_transformed + transformed_center
-
-    return pixel_transformed
-    
+from typing import Tuple 
 
 def re_orient_bboxes(bboxes:np.array, original_orientation:int, \
-                    original_img_size:Tuple[int, int], \
-                    rotated_img_size:Tuple[int, int]) -> np.array:
+                    input_img_size:Tuple[int, int]) -> np.array:
     #bboxes : [n, 4] (left, top, right, bottom)
     #original_orientation : 0, 90, 180, 270
-    if original_orientation == 0:
+    #input_img_size : (W, H) the image size before re-oriented
+    W, H = input_img_size
+    if original_orientation == 0: #no need to re-orient
         return bboxes
     orientation = 360 - original_orientation
     oriented_bboxes = []
     for left, top, right, bottom in bboxes:
-        bbox = np.array([[left, top], [right, bottom]])
-        bbox = transform_pixel_coordinates(bbox, orientation, original_img_size, rotated_img_size)
-        left, top = np.min(bbox, axis=0)
-        right, bottom = np.max(bbox, axis=0)
+        if orientation == 90:
+            left, top, right, bottom = top, W - right, bottom, W - left
+        elif orientation == 180:
+            left, top, right, bottom = W - right, H - bottom, W - left, H - top
+        elif orientation == 270:
+            left, top, right, bottom = H - bottom, left, H - top, right
+        else:
+            raise ValueError("Invalid orientation value")
+
         oriented_bboxes.append([left, top, right, bottom])
     return np.array(oriented_bboxes)
     
