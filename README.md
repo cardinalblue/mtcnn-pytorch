@@ -2,7 +2,13 @@ This project is belongs to the original creator (https://github.com/khrlimam/mtc
 
 
 ## How to install
-Install the package with pip: `pip install git+https://github.com/cardinalblue/mtcnn-pytorch.git`
+Install the package with pip: 
+
+
+`https`: `pip install git+https://github.com/cardinalblue/mtcnn-pytorch.git`
+
+`ssh`: `pip install git@github.com:cardinalblue/mtcnn-pytorch.git`
+
 
 
 ## How to use
