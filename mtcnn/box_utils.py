@@ -2,29 +2,34 @@ import numpy as np
 from PIL import Image
 from typing import Tuple 
 
-def re_orient_bboxes(bboxes:np.array, original_orientation:int, \
-                    input_img_size:Tuple[int, int]) -> np.array:
-    #bboxes : [n, 4] (left, top, right, bottom)
-    #original_orientation : 0, 90, 180, 270
-    #input_img_size : (W, H) the image size before re-oriented
+def re_orient_bboxes(
+    bboxes:np.array, 
+    original_orientation:int,
+    input_img_size:Tuple[int, int]
+) -> np.array:
+    # bboxes : [n, 4] (x_left, y_top, x_right, y_bottom)
+    # original_orientation : 0, 90, 180, 270
+    # input_img_size : (W, H) the image size before re-oriented
     W, H = input_img_size
     if original_orientation == 0: #no need to re-orient
         return bboxes
     orientation = 360 - original_orientation
-    oriented_bboxes = []
-    for left, top, right, bottom in bboxes:
-        if orientation == 90:
-            left, top, right, bottom = top, W - right, bottom, W - left
-        elif orientation == 180:
-            left, top, right, bottom = W - right, H - bottom, W - left, H - top
-        elif orientation == 270:
-            left, top, right, bottom = H - bottom, left, H - top, right
-        else:
-            raise ValueError("Invalid orientation value")
-
-        oriented_bboxes.append([left, top, right, bottom])
-    return np.array(oriented_bboxes)
+    if not orientation in [0, 90, 180, 270]:
+        raise ValueError("Invalid orientation value")
     
+    if orientation == 90:
+        scale = np.array([1,-1,1,-1]).reshape(1,4)
+        shift = np.array([0, W, 0, W]).reshape(1,4)
+        permutation = [1,2,3,0]
+    elif orientation == 180:
+        scale = np.array([-1,-1,-1,-1]).reshape(1,4)
+        shift = np.array([W, H, W, H]).reshape(1,4)
+        permutation = [2,3,0,1]
+    elif orientation == 270:
+        scale = np.array([-1,1,-1,1]).reshape(1,4)
+        shift = np.array([H, 0, H, 0]).reshape(1,4)
+        permutation = [3,0,1,2]
+    return bboxes[:, permutation] * scale + shift
 
 def nms(boxes, overlap_threshold=0.5, mode='union'):
     """Non-maximum suppression.
