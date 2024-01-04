@@ -10,7 +10,7 @@ pip install git+https://github.com/cardinalblue/mtcnn-pytorch.git
 
 ### ssh
 ```
-pip install git@github.com:cardinalblue/mtcnn-pytorch.git
+pip install git+ssh://git@github.com/cardinalblue/mtcnn-pytorch.git
 ```
 
 
