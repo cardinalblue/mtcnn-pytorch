@@ -1,8 +1,18 @@
-This project is belongs to the original creator (https://github.com/khrlimam/mtcnn-pytorch). I just fixed some problems that may have been caused by newer version of PyTorch. Also this project is available to install from pypi: `pip install torch-mtcnn`
-
+This project is belongs to the original creator (https://github.com/khrlimam/mtcnn-pytorch). I just fixed some problems that may have been caused by newer version of PyTorch. 
 
 ## How to install
-Install the package with pip: `pip install git+https://github.com/cardinalblue/mtcnn-pytorch.git`
+Install the package with pip: 
+
+### https
+```
+pip install git+https://github.com/cardinalblue/mtcnn-pytorch.git
+```
+
+### ssh
+```
+pip install git+ssh://git@github.com/cardinalblue/mtcnn-pytorch.git
+```
+
 
 
 ## How to use
