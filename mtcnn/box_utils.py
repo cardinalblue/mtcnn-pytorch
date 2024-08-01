@@ -1,9 +1,9 @@
 import numpy as np
 from PIL import Image
-from typing import Tuple 
+from typing import Tuple
 
 def re_orient_bboxes(
-    bboxes:np.array, 
+    bboxes:np.array,
     original_orientation:int,
     input_img_size:Tuple[int, int]
 ) -> np.array:
@@ -16,7 +16,7 @@ def re_orient_bboxes(
     orientation = 360 - original_orientation
     if not orientation in [0, 90, 180, 270]:
         raise ValueError("Invalid orientation value")
-    
+
     if orientation == 90:
         scale = np.array([1,-1,1,-1]).reshape(1,4)
         shift = np.array([0, W, 0, W]).reshape(1,4)
@@ -170,11 +170,11 @@ def get_image_boxes(bounding_boxes, img, size=24):
 
     [dy, edy, dx, edx, y, ey, x, ex, w, h] = correct_bboxes(bounding_boxes, width, height)
     img_boxes = np.zeros((num_boxes, 3, size, size), 'float32')
+    img_array = np.asarray(img, 'uint8')
 
     for i in range(num_boxes):
         img_box = np.zeros((h[i], w[i], 3), 'uint8')
 
-        img_array = np.asarray(img, 'uint8')
         img_box[dy[i]:(edy[i] + 1), dx[i]:(edx[i] + 1), :] =\
             img_array[y[i]:(ey[i] + 1), x[i]:(ex[i] + 1), :]
 
